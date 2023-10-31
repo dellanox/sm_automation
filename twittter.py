@@ -1,3 +1,5 @@
+#pip install tweepy
+
 import tweepy
 
 api_key = "hS10Xio9mRbBy4N0riEgjQQKi"
