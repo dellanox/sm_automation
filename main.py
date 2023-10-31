@@ -1,4 +1,4 @@
-from spreadsheet_summary import get_spreadsheet_details
+
 from scheduler import schedule_job
 import subprocess
 import sys
@@ -25,7 +25,7 @@ def job():
         # If the Google Sheets API script successfully returns the desired output
         if google_output:
             # Pass the output to the script responsible for tweeting
-            tweet_process = subprocess.Popen([sys.executable, 'tweet.py', google_output], stdout=subprocess.PIPE)
+            tweet_process = subprocess.Popen([sys.executable, 'twitter.py', google_output], stdout=subprocess.PIPE)
             tweet_output, _ = tweet_process.communicate()
             print(tweet_output.decode('utf-8'))  # Print the output of the tweet process
         else:
