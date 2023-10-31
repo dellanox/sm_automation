@@ -8,43 +8,40 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
+# The ID and range of a sample spreadsheet.
+#SPREADSHEET_ID = '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms'
+#SHEET_AND_RANGE_NAME = 'twitter_autopost_v1!E2:F4'
+
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
-# The ID and range of a sample spreadsheet.
-SAMPLE_SPREADSHEET_ID = '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms'
-SAMPLE_RANGE_NAME = 'Class Data!A2:E'
-
+SPREADSHEET_ID = '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms'
+SHEET_NAME = 'Class Data'
+RANGE_NAME = 'A2:E'
+SHEET_AND_RANGE_NAME = f'{SHEET_NAME}!{RANGE_NAME}'
 
 def main():
-    """Shows basic usage of the Sheets API.
-    Prints values from a sample spreadsheet.
-    """
+    # Assuming 'credentials.json' is in the same directory as the script
+    # credentials_file = os.path.join(os.path.dirname(__file__), 'credentials.json')
+
     creds = None
-    # The file token.json stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-    if os.path.exists('./token.json'):
-        creds = Credentials.from_authorized_user_file('./token.json', SCOPES)
-    # If there are no (valid) credentials available, let the user log in.
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                './credentials.json', SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
             creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
-        with open('./token.json', 'w') as token:
+        
+        with open('token.json', 'w') as token:
             token.write(creds.to_json())
 
     try:
         service = build('sheets', 'v4', credentials=creds)
-
-        # Call the Sheets API
         sheet = service.spreadsheets()
-        result = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID,
-                                    range=SAMPLE_RANGE_NAME).execute()
+        result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=SHEET_AND_RANGE_NAME).execute()
         values = result.get('values', [])
 
         if not values:
@@ -57,7 +54,6 @@ def main():
             print('%s, %s' % (row[0], row[4]))
     except HttpError as err:
         print(err)
-
 
 if __name__ == '__main__':
     main()
