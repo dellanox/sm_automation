@@ -18,16 +18,23 @@ RANGE_NAME = 'A2:E'
 SHEET_AND_RANGE_NAME = f'{SHEET_NAME}!{RANGE_NAME}'
 
 def get_google_sheets_data():
+    """
+    Fetches data from a Google Sheet.
+    
+    Returns:
+        str: Fetched data from Google Sheets or error message if any occurred.
+    """
     creds = None
     if os.path.exists('token.json'):
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
     
+    # If credentials do not exist or are invalid, refresh them or authenticate
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
+            creds = flow.run_local_server(port=80)
         
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
@@ -55,9 +62,23 @@ def get_google_sheets_data():
         return f"An error occurred: {ex}"
 
 def call_google_sheets_api():
+    """
+    Initiates a call to retrieve data from Google Sheets API.
+
+    Returns:
+        str: Success message with fetched Google Sheets data or failure message.
+    """
     google_data = get_google_sheets_data()
 
     if google_data:
         return f"Google Sheets data successfully fetched:\n{google_data}"
     else:
         return "No data retrieved from Google Sheets API."
+
+# Execution
+
+# Fetch data from Google Sheets
+result = call_google_sheets_api()
+
+# Displaying the result after attempting to fetch data from Google Sheets
+print(result)
