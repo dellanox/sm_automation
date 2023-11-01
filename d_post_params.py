@@ -1,6 +1,11 @@
 import schedule
 import time
 
+# Parameters for post processing
+COLUMN_INDEX_NAME = 0
+COLUMN_INDEX_MAJOR = 4
+
+
 def automation():
     """
     Execute tasks related to Business Improvement: Automation
@@ -13,7 +18,7 @@ def data_engineering():
     """
     print("Data Engineering: Democratized Insights")
 
-# Define other functions similarly...
+# Define othergit  functions similarly...
 
 def schedule_jobs():
     """
