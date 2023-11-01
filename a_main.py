@@ -1,58 +1,49 @@
-from __future__ import print_function
+import os
 
-import os.path
-
-import subprocess
-import sys
-
-from google.auth.transport.requests import Request
+import gspread
+from google.oauth2 import service_account
+from c_credentials import SCOPES, SPREADSHEET_PARAMS  # Import SPREADSHEET_PARAMS from the credentials file
 from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
-SPREADSHEET_ID = '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms'
-SHEET_NAME = 'Class Data'
-RANGE_NAME = 'A2:E'
-SHEET_AND_RANGE_NAME = f'{SHEET_NAME}!{RANGE_NAME}'
+from c_credentials import SPREADSHEET_PARAMS
+from b_get_gsheet_content import get_spreadsheet_content
+
 
 def get_google_sheets_data():
     """
     Fetches data from a Google Sheet.
-    
+
     Returns:
         str: Fetched data from Google Sheets or error message if any occurred.
     """
     creds = None
     if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    
-    # If credentials do not exist or are invalid, refresh them or authenticate
+        creds = Credentials.from_authorized_user_file('token.json', SPREADSHEET_PARAMS['SCOPES'])
+
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+            flow = InstalledAppFlow.from_client_config(SPREADSHEET_PARAMS, 'SCOPES')
             creds = flow.run_local_server(port=80)
-        
+
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
 
     try:
-        service = build('sheets', 'v4', credentials=creds)
-        sheet = service.spreadsheets()
-        result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=SHEET_AND_RANGE_NAME).execute()
-        values = result.get('values', [])
+        result = get_spreadsheet_content(creds, SPREADSHEET_PARAMS['SPREADSHEET_ID'], SPREADSHEET_PARAMS['SHEET_AND_RANGE_NAME'])
 
-        if not values:
+        if not result:
             return 'No data found.'
 
         data = 'Name, Major:\n'
-        for row in values:
-            # Appending columns A and E, which correspond to indices 0 and 4.
+        for row in result:
             data += '%s, %s\n' % (row[0], row[4])
-        
+
         return data
 
     except HttpError as err:
@@ -60,6 +51,7 @@ def get_google_sheets_data():
 
     except Exception as ex:
         return f"An error occurred: {ex}"
+
 
 def call_google_sheets_api():
     """
@@ -75,10 +67,11 @@ def call_google_sheets_api():
     else:
         return "No data retrieved from Google Sheets API."
 
-# Execution
 
-# Fetch data from Google Sheets
-result = call_google_sheets_api()
+if __name__ == '__main__':
+    # Fetch data from Google Sheets
+    result = call_google_sheets_api()
 
-# Displaying the result after attempting to fetch data from Google Sheets
-print(result)
+    # Displaying the result after attempting to fetch data from Google Sheets
+    print(result)
+
