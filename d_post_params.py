@@ -5,6 +5,11 @@ import time
 COLUMN_INDEX_NAME = 0
 COLUMN_INDEX_MAJOR = 4
 
+# Parameters for post processing
+HEADER_ROW_INDEX = 0  # Index of the row containing headers
+
+# List of column indices to fetch (left to right): Name at index 0, Major at index 4
+COLUMN_INDICES = [0, 2, 4]  
 
 def automation():
     """

@@ -7,6 +7,10 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
+from d_post_params import COLUMN_INDEX_NAME, COLUMN_INDEX_MAJOR
+from d_post_params import COLUMN_INDICES
+from d_post_params import HEADER_ROW_INDEX
+
 from c_credentials import SCOPES, SPREADSHEET_ID, SHEET_NAME, RANGE_NAME, SHEET_AND_RANGE_NAME
 
 def main():
@@ -44,20 +48,28 @@ def main():
             print('No data found.')  # Display if no data is available
             return
 
-        print('Name, Major:')
-        for row in values:
-            if len(row) >= 5:  # Check if enough columns are available
-                # Print columns A and E (indices 0 and 4)
-                print('%s, %s' % (row[0], row[4]))
-            else:
-                print('Insufficient columns in the row')  # Display if columns are insufficient
-        print('Name, Major:')
-        for row in values:
-            if len(row) >= max(COLUMN_INDEX_NAME, COLUMN_INDEX_MAJOR) + 1:
-                # Print using dynamically retrieved column indices
-                print('%s, %s' % (row[COLUMN_INDEX_NAME], row[COLUMN_INDEX_MAJOR]))
-            else:
-                print('Insufficient columns in the row') # Display if columns are insufficient
+        # Fetch the first row which usually contains the headers
+        header_row = values[0] if values else []
+
+        # If a header row exists
+        if header_row:
+            # Get headers based on the specified indices and the available header columns
+            dynamic_headers = [header_row[i] for i in COLUMN_INDICES if i < len(header_row)]
+        
+            # Print dynamically generated header
+            print(', '.join(dynamic_headers))
+
+            # Iterate through rows starting from the second row to skip the header row
+            for row in values[1:]:
+                # Check if the row has enough columns as specified by COLUMN_INDICES
+                if len(row) >= max(COLUMN_INDICES) + 1:
+                     # Get and print values for specified indices
+                    row_values = [row[i] for i in COLUMN_INDICES]
+                    print(', '.join(row_values) + '\n')
+                else:
+                    print('Insufficient columns in the row')
+        else:
+            print("No header row found.")
 
         print('\n\nData retrieval successful.')  # Display success message
     except HttpError as err:
