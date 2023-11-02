@@ -7,23 +7,31 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import pandas as pd
 
-from d_params import COLUMN_INDICES, HEADER_ROW_INDEX, POST_CONTENT_INDEX  # Add POST_CONTENT_INDEX import
+from d_post_params import COLUMN_INDICES, HEADER_ROW_INDEX, POST_CONTENT_INDEX  # Add POST_CONTENT_INDEX import
 from c_credentials import SCOPES, SPREADSHEET_ID, SHEET_AND_RANGE_NAME
 
-def concatenate_gsheet_cells(sheet_values, index):
+
+sheet_values = SHEET_AND_RANGE_NAME
+
+def concatenate_gsheet_cells(sheet_values, POST_CONTENT_INDEX):
     """
-    Extracts values from the specified index in each row of the sheet values,
+    Extracts values from the specified indexes in each row of the sheet values,
     concatenates these values, and outputs the concatenated strings.
 
     Args:
     - sheet_values: The values extracted from the spreadsheet.
-    - index: The index to retrieve values for concatenation.
+    - POST_CONTENT_INDEX: The indexes to retrieve values for concatenation.
 
     Returns:
     - concatenated_strings: A list of concatenated strings.
     """
-    concatenated_strings = [' '.join(row[index] for row in sheet_values if len(row) > index)]
+    concatenated_strings = [' '.join(' '.join(str(row[i]) for i in POST_CONTENT_INDEX if len(row) > i) for row in sheet_values)]
     return concatenated_strings
+
+# Example usage
+#result = concatenate_gsheet_cells(sheet_values, POST_CONTENT_INDEX)
+#print(result)
+
 
 def main():
     creds = None
@@ -54,8 +62,8 @@ def main():
         concatenated_values = concatenate_gsheet_cells(values, POST_CONTENT_INDEX)
         print(concatenated_values)
 
-        df_all_columns = pd.DataFrame(values)
-        print(df_all_columns)
+        #df_all_columns = pd.DataFrame(values)
+        #print(df_all_columns)
 
         print('\n\nData retrieval successful.')
     except HttpError as err:

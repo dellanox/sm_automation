@@ -1,6 +1,13 @@
 import schedule
 import time
-import pandas as pd
+
+from c_credentials import SCOPES
+
+# Spreadsheet level parameters
+SPREADSHEET_ID = '1kMahFZKLS6B_dLtLEHRPktJyp31uvBsPSVfl9hC7Dlg'
+SHEET_NAME = 'sm_content' # Name of a sheet in the workbook
+RANGE_NAME = 'A1:F5' # A range in the spreadsheet
+SHEET_AND_RANGE_NAME = f'{SHEET_NAME}!{RANGE_NAME}'
 
 # Parameters for post processing
 COLUMN_INDEX_NAME = 0
@@ -17,7 +24,7 @@ SUBJECT_INDEX = 0
 TOPIC_INDEX = 4
 
 # Indexes for post content (list of indexes to be concatenated as post content)
-POST_CONTENT_INDEX = [5, 6, 7]  
+POST_CONTENT_INDEX = [5, 6,]  
 
 # Function to retrieve unique values at a specific index
 def get_unique_values(sheet_values, index):
