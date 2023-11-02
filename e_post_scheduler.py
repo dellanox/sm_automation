@@ -1,6 +1,43 @@
 import schedule
 import time
 
+import pandas as pd
+from d_post_params import SUBJECT_INDEX
+from d_post_params import TOPIC_INDEX
+
+
+
+def get_unique_subjects(sheet_values):
+    """
+    Retrieve unique subjects at the specified index from the spreadsheet values.
+
+    Args:
+    - sheet_values: The values extracted from the spreadsheet.
+
+    Returns:
+    - subjects: A list of unique subjects found at the specified index.
+    """
+    subjects = pd.DataFrame(sheet_values)[SUBJECT_INDEX].unique().tolist()
+    return subjects
+
+
+def get_unique_topics(sheet_values):
+    """
+    Retrieve unique topics at the specified index from the spreadsheet values.
+
+    Args:
+    - sheet_values: The values extracted from the spreadsheet.
+
+    Returns:
+    - topics: A list of unique topics found at the specified index.
+    """
+    topics = pd.DataFrame(sheet_values)[TOPIC_INDEX].unique().tolist()
+    return topics
+
+
+
+
+
 # Define functions for each item
 
 def automation():
@@ -71,5 +108,5 @@ schedule_job(lifestyle, 50)
 
 while True:
     schedule.run_pending()
-    # Introduce a 1-second delay to prevent excessive CPU usage
-    time.sleep(1)
+    # Introduce a 30-second delay to prevent excessive CPU usage
+    time.sleep(30)
