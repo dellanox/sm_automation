@@ -12,9 +12,9 @@ from googleapiclient.errors import HttpError
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
 SPREADSHEET_ID = '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms'
-SHEET_NAME = 'Class Data'
-RANGE_NAME = 'A2:E'
-SHEET_AND_RANGE_NAME = f'{SHEET_NAME}!{RANGE_NAME}'
+SHEET = 'Class Data'
+RANGE = 'A2:E'
+SHEET_AND_RANGE = f'{SHEET}!{RANGE}'
 
 def main():
     """
@@ -44,7 +44,7 @@ def main():
         service = build('sheets', 'v4', credentials=creds)
         sheet = service.spreadsheets()
         # Fetch values from the specified range in the spreadsheet
-        result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=SHEET_AND_RANGE_NAME).execute()
+        result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=SHEET_AND_RANGE).execute()
         values = result.get('values', [])
 
         if not values:

@@ -3,6 +3,7 @@ from __future__ import print_function
 import os.path
 
 from b_get_gsheet_content import fetch_sheet_data
+from c_credentials import SCOPES
 
 def call_google_sheets_api():
     """
