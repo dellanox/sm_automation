@@ -1,13 +1,13 @@
 import schedule
 import time
 
-import pandas as pd
+#import pandas as pd
 from d_post_params import SUBJECT_INDEX
 from d_post_params import TOPIC_INDEX
 
 
 
-def get_unique_subjects(sheet_values):
+#def get_unique_subjects(sheet_values):
     """
     Retrieve unique subjects at the specified index from the spreadsheet values.
 
@@ -21,7 +21,7 @@ def get_unique_subjects(sheet_values):
     return subjects
 
 
-def get_unique_topics(sheet_values):
+#def get_unique_topics(sheet_values):
     """
     Retrieve unique topics at the specified index from the spreadsheet values.
 

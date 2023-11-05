@@ -1,16 +1,15 @@
 from __future__ import print_function
 import os.path
 
-from d_post_params import COLUMN_INDICES, HEADER_ROW_INDEX, POST_CONTENT_INDEX  # Add POST_CONTENT_INDEX import
-from c_credentials import SCOPES, SPREADSHEET_ID, SHEET_AND_RANGE
+from d_post_params import SPREADSHEET_ID, SHEET_AND_RANGE, HEADER_ROW_INDEX, POST_CONTENT_INDEX, ROW_INDEX, SHEET_RANGE  
+from c_credentials import SCOPES
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from google.auth.transport.requests import Request
-import pandas as pd
 
-sheet_values = SHEET_AND_RANGE  # Initialize sheet_values
+#sheet_values = SHEET_AND_RANGE  # Initialize sheet_values
 
 def get_last_processed_row():
     try:
@@ -24,30 +23,24 @@ def save_last_processed_row(row):
     with open('last_processed_row.txt', 'w') as file:
         file.write(str(row))
 
-def concatenate_gsheet_cells(row, POST_CONTENT_INDEX, current_row):
-    """
-    Extracts values from the specified indexes in a single row of the sheet values,
-    concatenates these values, and outputs the concatenated strings.
+def get_column_number(column_letter):
+    letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    col = 0
+    for letter in column_letter:
+        col = col * 26 + letters.index(letter) + 1
+    return col
 
-    Args:
-    - row: A single row of values from the spreadsheet.
-    - POST_CONTENT_INDEX: The indexes to retrieve values for concatenation.
-    - current_row: The current row number.
+def is_cell_in_range(cell, sheet_range):
+    start_cell, end_cell = sheet_range.split(':')
+    start_row = int(start_cell[1:])
+    end_row = int(end_cell[1:])
+    start_col = get_column_number(start_cell[0])
+    end_col = get_column_number(end_cell[0])
+    cell_row = int(cell[1:])
+    cell_col = get_column_number(cell[0])
+    return start_row <= cell_row <= end_row and start_col <= cell_col <= end_col
 
-    Returns:
-    - concatenated_strings: A string of concatenated values.
-    """
-    # Assuming `ROW_INDEX` is the index representing the row/line number
-    ROW_INDEX = current_row
-
-    concatenated_values = [str(row[i]) for i in POST_CONTENT_INDEX if len(row) > i and i != ROW_INDEX]
-    print(concatenated_values)
-
-    concatenated_string = ' '.join(concatenated_values)
-    return concatenated_string
-
-       
-def extract_content(row, indices):
+#def extract_content(row, indices):
     """
     Extracts content from specific indices in a single row of the sheet values.
 
@@ -61,32 +54,50 @@ def extract_content(row, indices):
     #content = [row[i] if i < len(row) else '' for i in indices]
     #return content
 
+def extract_content(row, indices):
+    """
+    Extracts content from specific indices in a single row of the sheet values.
 
+    Args:
+    - row: A single row of values from the spreadsheet.
+    - indices: A list of indices to retrieve values from.
+
+    Returns:
+    - content: A list of content from the specified indices.
+    """
+    content = []
+    for index in indices:
+        if index < len(row):
+            content.extend(row[index])
+        else:
+            content.extend('')  # If the index is out of range, append an empty string
+
+    return content
+
+#def concatenate_gsheet_cells(POST_CONTENT_INDEX, ROW_INDEX, RANGE, values):
+    concatenated_values = []
+    if is_cell_in_range(f"A{ROW_INDEX}", SHEET_RANGE):
+        row_data = values[ROW_INDEX - 1]  # Retrieve the actual row data
+        print(f"Row Data: {row_data}")  # Print the row data
+        content = extract_content(row_data, POST_CONTENT_INDEX)  # Pass row data to extract_content
+        print(content)  # Print the successfully extracted value
+        concatenated_values.extend(content)
+        print(concatenated_values)  # Display the extracted values from the row for debugging purposes  
+
+
+def concatenate_gsheet_cells(POST_CONTENT_INDEX, ROW_INDEX, SHEET_RANGE, values):
+    concatenated_values = []
+    if is_cell_in_range(f"A{ROW_INDEX}", SHEET_RANGE):
+        row_data = values[ROW_INDEX - 1]  # Retrieve the actual row data
+        print(f"Row Data: {row_data}")  # Print the row data
+        content = extract_content(row_data, POST_CONTENT_INDEX)  # Pass row data to extract_content
+        print(f"Extracted Content: {content}")  # Print the extracted content
+        concatenated_values.extend(content)
+        print(f"Concatenated Values: {concatenated_values}")  # Print the concatenated values for debugging purposes       
 
 def main(): 
-    
-    #concatenated_values = [str(row[i]) for i in POST_CONTENT_INDEX if len(row) > i and i != ROW_INDEX]
-    #print(concatenated_values)
+    ROW_INDEX = get_last_processed_row() + 1  # Retrieve the last processed row and move to the next row
 
-    # Assuming you have the row from the spreadsheet
-    #row = ['Value 1', 'Value 2', 'Value 3', 'Value 4', 'Value 5', 'Value 6', 'Value 7', 'Value 8']
-
-    #content_values = extract_content(row, POST_CONTENT_INDEX)
-    #print(content_values)
-    last_row = get_last_processed_row()  # Retrieve the last processed row
-    current_row = last_row + 1  # Move to the next row
-
-    row = current_row
-
-    concatenated_values = []
-    for i in POST_CONTENT_INDEX:
-        if len(row) > i and i != ROW_INDEX:
-            concatenated_values.append(str(row[i]))
-    print(concatenated_values)
-
-   
-
-    # Initialize credentials
     creds = None
     if os.path.exists('token.json'):
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
@@ -105,19 +116,18 @@ def main():
         service = build('sheets', 'v4', credentials=creds)
         sheet = service.spreadsheets()
         result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=SHEET_AND_RANGE).execute()
-        values = result.get('values', [])  # Values are retrieved inside the try block
+        values = result.get('values', [])
 
         if not values:
             print('No data found.')
             return
 
-        if current_row < len(values):
-            row = values[current_row]
-            concatenated_values = concatenate_gsheet_cells(row, POST_CONTENT_INDEX, current_row)
-            print(f'Processed row {current_row}: {concatenated_values}')  # Do something with the concatenated content
+        if ROW_INDEX < len(values):
+            row = values[ROW_INDEX - 1]  # Fetch the specific row from the values list
+            concatenate_gsheet_cells(POST_CONTENT_INDEX, ROW_INDEX, SHEET_RANGE, values)
+            save_last_processed_row(ROW_INDEX)
 
-            save_last_processed_row(current_row)  # Save the current row for the next execution
-
+       
         print('\n\nData retrieval and processing successful.')
 
     except HttpError as err:
