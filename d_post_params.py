@@ -4,25 +4,25 @@ import time
 # Spreadsheet level parameters
 SPREADSHEET_ID = '1kMahFZKLS6B_dLtLEHRPktJyp31uvBsPSVfl9hC7Dlg'
 SHEET = 'sm_content' # Name of a sheet in the workbook
-SHEET_RANGE = 'A1:H21' # A range in the spreadsheet
+SHEET_RANGE = 'A1:I21' # A range in the spreadsheet
 SHEET_AND_RANGE = f'{SHEET}!{SHEET_RANGE}'
 
-# Parameters for post processing
-#COLUMN_INDEX_0 = 0
-#COLUMN_INDEX_1 = 4
 
 # Parameters for post processing
 HEADER_ROW_INDEX = 0  # Index of the row containing headers
 
-# Column indices to fetch (from left to right): Name at index 0, Major at index 4
-#COLUMN_INDICES = [0, 2, 4]
-
 # Column index for subject and topic
-SUBJECT_INDEX = 0
-TOPIC_INDEX = 4
+"""Add the key=value pair for the neccessary columns in 
+spreadsheet"""
+SUBJECT = 3
+TOPIC = 4
+NICHE = 5
+CONTEXT = 6
+MEDIA = 7 
+CONTENT = 8
 
 # Indexes for post content (list of indexes to be concatenated as post content)
-POST_CONTENT_INDEX = [3, 6, 7,] 
+POST_CONTENT_INDEX = [TOPIC, MEDIA, CONTENT] 
 
 ROW_INDEX = 3
 

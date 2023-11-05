@@ -40,19 +40,6 @@ def is_cell_in_range(cell, sheet_range):
     cell_col = get_column_number(cell[0])
     return start_row <= cell_row <= end_row and start_col <= cell_col <= end_col
 
-#def extract_content(row, indices):
-    """
-    Extracts content from specific indices in a single row of the sheet values.
-
-    Args:
-    - row: A single row of values from the spreadsheet.
-    - indices: A list of indices to retrieve values from.
-
-    Returns:
-    - content: A list of content from the specified indices.
-    """
-    #content = [row[i] if i < len(row) else '' for i in indices]
-    #return content
 
 def extract_content(row, indices):
     """
@@ -68,32 +55,27 @@ def extract_content(row, indices):
     content = []
     for index in indices:
         if index < len(row):
-            content.extend(row[index])
+            content.append(row[index])
         else:
             content.extend('')  # If the index is out of range, append an empty string
 
     return content
 
-#def concatenate_gsheet_cells(POST_CONTENT_INDEX, ROW_INDEX, RANGE, values):
-    concatenated_values = []
-    if is_cell_in_range(f"A{ROW_INDEX}", SHEET_RANGE):
-        row_data = values[ROW_INDEX - 1]  # Retrieve the actual row data
-        print(f"Row Data: {row_data}")  # Print the row data
-        content = extract_content(row_data, POST_CONTENT_INDEX)  # Pass row data to extract_content
-        print(content)  # Print the successfully extracted value
-        concatenated_values.extend(content)
-        print(concatenated_values)  # Display the extracted values from the row for debugging purposes  
-
-
 def concatenate_gsheet_cells(POST_CONTENT_INDEX, ROW_INDEX, SHEET_RANGE, values):
     concatenated_values = []
     if is_cell_in_range(f"A{ROW_INDEX}", SHEET_RANGE):
         row_data = values[ROW_INDEX - 1]  # Retrieve the actual row data
-        print(f"Row Data: {row_data}")  # Print the row data
+        #print(f"Row Data: {row_data}")  # Print the row data
         content = extract_content(row_data, POST_CONTENT_INDEX)  # Pass row data to extract_content
-        print(f"Extracted Content: {content}")  # Print the extracted content
+        #print(f"Extracted Content: {content}")  # Print the extracted content
         concatenated_values.extend(content)
-        print(f"Concatenated Values: {concatenated_values}")  # Print the concatenated values for debugging purposes       
+        #print(f"Concatenated Values: {concatenated_values}")  # Print the concatenated values for debugging purposes
+
+        # Format the concatenated values
+        formatted_values = '\n\n'.join([str(value) for value in concatenated_values])
+        post_content = formatted_values.replace('"', '').replace("'", '').replace(',', '')
+        print(f"Formatted Values:\n\n{post_content}")  # Print the formatted concatenated values
+        return post_content
 
 def main(): 
     ROW_INDEX = get_last_processed_row() + 1  # Retrieve the last processed row and move to the next row
@@ -128,7 +110,7 @@ def main():
             save_last_processed_row(ROW_INDEX)
 
        
-        print('\n\nData retrieval and processing successful.')
+        #print('\n\nData retrieval and processing successful.') # for debugging
 
     except HttpError as err:
         print(f'An error occurred: {err}')

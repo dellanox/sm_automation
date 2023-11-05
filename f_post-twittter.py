@@ -1,6 +1,7 @@
-#pip install tweepy
-
 import tweepy
+from b_get_gsheet_content import concatenate_gsheet_cells
+from d_post_params import SPREADSHEET_ID, SHEET_AND_RANGE, HEADER_ROW_INDEX, POST_CONTENT_INDEX, ROW_INDEX, SHEET_RANGE  
+
 
 api_key = "hS10Xio9mRbBy4N0riEgjQQKi"
 api_secret = "8We8BsYp7URbQpTzmmNrMt3ks9gWrbE9iwpmYB3il1ZTMAmo2E"
@@ -12,7 +13,10 @@ client = tweepy.Client(bearer_token, api_key, api_secret, access_token, access_t
 auth = tweepy.OAuth1UserHandler(api_key, api_secret, access_token, access_token_secret)
 api = tweepy.API(auth)
 
-client.create_tweet(text = "What would you do if you could automate several tasks?")
+formatted_values = concatenate_gsheet_cells(POST_CONTENT_INDEX, ROW_INDEX, SHEET_RANGE, values)
+print(formatted_values)
+
+client.create_tweet(text = formatted_values)
 
 # client.like("1613078224539615233")
 
