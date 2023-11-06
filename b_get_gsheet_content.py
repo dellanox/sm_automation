@@ -1,7 +1,7 @@
 from __future__ import print_function
 import os.path
 
-from d_post_params import SPREADSHEET_ID, SHEET_AND_RANGE, HEADER_ROW_INDEX, POST_CONTENT_INDEX, ROW_INDEX, SHEET_RANGE  
+from d_post_params import SPREADSHEET_ID, SHEET_AND_RANGE, POST_CONTENT_INDEX, ROW_INDEX, SHEET_RANGE  
 from c_credentials import SCOPES
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -62,23 +62,34 @@ def extract_content(row, indices):
     return content
 
 def concatenate_gsheet_cells(POST_CONTENT_INDEX, ROW_INDEX, SHEET_RANGE, values):
+    """
+    Concatenates cell values from a Google Sheet based on provided indices and range.
+
+    Args:
+    - POST_CONTENT_INDEX: List of column indices representing the cells to concatenate.
+    - ROW_INDEX: The row index to process.
+    - SHEET_RANGE: The range in the spreadsheet to operate within.
+    - values: The data retrieved from the Google Sheet.
+
+    Returns:
+    - post_content: A string representing the concatenated cell values.
+    """
+
     concatenated_values = []
     if is_cell_in_range(f"A{ROW_INDEX}", SHEET_RANGE):
-        row_data = values[ROW_INDEX - 1]  # Retrieve the actual row data
-        #print(f"Row Data: {row_data}")  # Print the row data
-        content = extract_content(row_data, POST_CONTENT_INDEX)  # Pass row data to extract_content
-        #print(f"Extracted Content: {content}")  # Print the extracted content
+        row_data = values[ROW_INDEX]  # Retrieve the actual row data
+        content = extract_content(row_data, POST_CONTENT_INDEX)  # Extract content from specified indices
         concatenated_values.extend(content)
-        #print(f"Concatenated Values: {concatenated_values}")  # Print the concatenated values for debugging purposes
 
         # Format the concatenated values
-        formatted_values = '\n\n'.join([str(value) for value in concatenated_values])
+        formatted_values = '\n'.join([str(value) for value in concatenated_values])
         post_content = formatted_values.replace('"', '').replace("'", '').replace(',', '')
         print(f"Formatted Values:\n\n{post_content}")  # Print the formatted concatenated values
         return post_content
 
+
+
 def main(): 
-    ROW_INDEX = get_last_processed_row() + 1  # Retrieve the last processed row and move to the next row
 
     creds = None
     if os.path.exists('token.json'):
@@ -105,8 +116,9 @@ def main():
             return
 
         if ROW_INDEX < len(values):
-            row = values[ROW_INDEX - 1]  # Fetch the specific row from the values list
+            row = values[ROW_INDEX]  # Fetch the specific row from the values list
             concatenate_gsheet_cells(POST_CONTENT_INDEX, ROW_INDEX, SHEET_RANGE, values)
+            
             save_last_processed_row(ROW_INDEX)
 
        
